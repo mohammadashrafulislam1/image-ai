@@ -10,10 +10,11 @@ export const POST = async(req: Request) =>{
     try{
         const {userId} = auth();
         const body = await req.json();
-        const { prompt, amount, resolution } = body;
-        if(!userId){
-            return new NextResponse("Unauthorized", {status: 401})
-        }
+        console.log(body)
+        const { prompt, amount ="1", resolution ="1024x1024" } = body;
+        // if(!userId){
+        //     return new NextResponse("Unauthorized", {status: 401})
+        // }
         if(!openai.apiKey){
             return new NextResponse("Api key is not configured.", {status: 500})
         }
@@ -26,13 +27,15 @@ export const POST = async(req: Request) =>{
         if(!resolution){
             return new NextResponse("resolution is required.", {status: 400})
         }
-        const response = await openai.images({
+        const response = await openai.images.generate({
+            model: "dall-e-3",
             prompt,
             n: parseInt(amount, 10), 
             size:resolution
         })
-        console.log(response.data)
-        return NextResponse.json(response.data.data)
+        console.log(response)
+        return NextResponse.json(response.data[0].url);
+
     }
     catch (e){
         return new NextResponse("Internal Serval Error", { status: 500});

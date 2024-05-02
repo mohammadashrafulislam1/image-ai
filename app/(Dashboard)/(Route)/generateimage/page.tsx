@@ -34,6 +34,7 @@ export default function Dashboard (){
             setIsLoading(true)
             setError('')
             const response = await axios.post("/api/imageapi", values);
+            console.log(error.response);
  
             const imgUrls = response.data.map((image: {url: string}) =>image.url);
  
@@ -89,9 +90,9 @@ export default function Dashboard (){
        <div className="flex flex-col w-1/2">
        <label htmlFor="">Resolution of Image</label>
        <select className="select select-bordered select-xs max-w-xs mb-3" onChange={handleSelectRes} value={resolution}>
-       <option selected value="200x200">200x200</option>
-       <option value="500x500">500x500</option>
-       <option value="1080x1080">1080x1080</option>
+       <option selected value="256x256">256x256</option>
+       <option value="512x512">512x512</option>
+       <option value="1024x1024">1024x1024</option>
              </select>
        </div>
         </div>
