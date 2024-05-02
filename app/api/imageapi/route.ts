@@ -10,7 +10,7 @@ export const POST = async(req: Request) =>{
     try{
         const {userId} = auth();
         const body = await req.json();
-        const { prompt } = body;
+        const { prompt, amount, resolution } = body;
         if(!userId){
             return new NextResponse("Unauthorized", {status: 401})
         }
@@ -20,13 +20,19 @@ export const POST = async(req: Request) =>{
         if(!prompt){
             return new NextResponse("Prompt is required.", {status: 400})
         }
+        if(!amount){
+            return new NextResponse("amount is required.", {status: 400})
+        }
+        if(!resolution){
+            return new NextResponse("resolution is required.", {status: 400})
+        }
         const response = await openai.images({
             prompt,
-            n:1, 
-            size:"1024X1024",
-            response_format:"url"
+            n: parseInt(amount, 10), 
+            size:resolution
         })
-        return NextResponse.json(response.data.data[0].url)
+        console.log(response.data)
+        return NextResponse.json(response.data.data)
     }
     catch (e){
         return new NextResponse("Internal Serval Error", { status: 500});

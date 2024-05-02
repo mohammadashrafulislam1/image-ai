@@ -5,20 +5,21 @@ import { useState } from "react";
 
 export default function Dashboard (){
     const router = useRouter();
-     const [inputValue, setInputValue] = useState('');
+     const [prompt, setPrompt] = useState('');
+     const [error, setError] =useState('');
      const [isLoading, setIsLoading] =useState(false);
      const [amount, setAmount] = useState("1");
      const [resolution, setResolution] = useState("500x500");
      const [images, setImages] = useState([]);
 
      const values = {
-         inputValue,
+         prompt,
          amount,
          resolution
      }
 
      const handleInputChange = (e)=>{
-        setInputValue(e.target.value)
+        setPrompt(e.target.value)
      }
      const handleSelectRes = (e) =>{
         setResolution(e.target.value)
@@ -28,23 +29,29 @@ export default function Dashboard (){
      }
 
      const handleSubmit = async(e)=>{
-        e.preventDefault();
-        try{
-           setImages([])
-
-           const response = await axios.post("/api/image", values);
-
-           const imgUrls = response.data.map((image: {url: string}) =>image.url);
-
-           setImages(imgUrls);
-           setInputValue('')
-        }
-        catch(error){
-            console.log(error)
-        }
-        finally{ router.refresh() }
+        e.preventDefault(); try{
+            setImages([])
+            setIsLoading(true)
+            setError('')
+            const response = await axios.post("/api/imageapi", values);
+ 
+            const imgUrls = response.data.map((image: {url: string}) =>image.url);
+ 
+            setImages(imgUrls);
+            setPrompt('')
+            setError('')
+         }
+         catch(error){
+             console.log(error)
+             setError(error.message)
+             setIsLoading(false)
+         }
+         finally{ router.refresh()
+            setIsLoading(false)
+          }
      }
 
+     console.log(images)
     return(
         <div className="flex flex-col items-center mt-8">
         <p>Dashboard</p>
@@ -63,15 +70,15 @@ export default function Dashboard (){
                 <input 
                 type="text"
                 placeholder="what you want to create?"
-                value={inputValue}
+                value={prompt}
                 onChange={handleInputChange}
                 disabled={isLoading}
                 className="input w-full border-0 focus-visible:ring-transparent focus-visible:right-0 outline-none"
                  /> <br /><br />
-        <div className="flex gap-4">
+        <div className="flex gap-4 items-center justify-center">
         <div className="flex flex-col w-1/2">
         <label htmlFor="">Amount of Image</label>
-       <select className="select select-bordered select-xs max-w-xs mb-3" onChange={handleSelectAmount}>
+       <select className="select select-bordered select-xs max-w-xs mb-3" onChange={handleSelectAmount} value={amount}>
        <option selected value="1">1</option>
        <option value="2">2</option>
        <option value="3">3</option>
@@ -81,7 +88,7 @@ export default function Dashboard (){
         </div>
        <div className="flex flex-col w-1/2">
        <label htmlFor="">Resolution of Image</label>
-       <select className="select select-bordered select-xs max-w-xs mb-3" onChange={handleSelectRes}>
+       <select className="select select-bordered select-xs max-w-xs mb-3" onChange={handleSelectRes} value={resolution}>
        <option selected value="200x200">200x200</option>
        <option value="500x500">500x500</option>
        <option value="1080x1080">1080x1080</option>
@@ -104,7 +111,22 @@ export default function Dashboard (){
                         <p>No Images...</p>
                     )
                 }
-                <p>images will load here</p>
+                {
+                    error && (
+                        <p className="bg-red-500 rounded-full pl-5 text-white">{error}</p>
+                    )
+                }
+                <div className="grid md:grid-cols-2 grid-cols-1 gap-5 mt-10"
+                >
+          {
+            images.map((src)=> 
+            <div className="card">
+                <img src={src} alt="AI GENERATED IMAGES"/>
+                <button className="btn btn-sm btn-success" onClick={()=> window.open(src)}>Download</button>
+            </div>
+            )
+          }
+                </div>
             </div>
          </div>
        </div>
