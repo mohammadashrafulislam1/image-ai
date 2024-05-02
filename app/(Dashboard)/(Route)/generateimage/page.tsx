@@ -1,7 +1,10 @@
 "use client"
+import axios from "axios";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function Dashboard (){
+    const router = useRouter();
      const [inputValue, setInputValue] = useState('');
      const [isLoading, setIsLoading] =useState(false);
      const [amount, setAmount] = useState("1");
@@ -14,18 +17,32 @@ export default function Dashboard (){
          resolution
      }
 
-     const handleInputChange = async(e)=>{
+     const handleInputChange = (e)=>{
         setInputValue(e.target.value)
      }
+     const handleSelectRes = (e) =>{
+        setResolution(e.target.value)
+     }
+     const handleSelectAmount = (e) =>{
+        setAmount(e.target.value)
+     }
 
-     const handleSubmit =(e)=>{
+     const handleSubmit = async(e)=>{
         e.preventDefault();
         try{
            setImages([])
+
+           const response = await axios.post("/api/image", values);
+
+           const imgUrls = response.data.map((image: {url: string}) =>image.url);
+
+           setImages(imgUrls);
+           setInputValue('')
         }
         catch(error){
             console.log(error)
         }
+        finally{ router.refresh() }
      }
 
     return(
@@ -51,6 +68,26 @@ export default function Dashboard (){
                 disabled={isLoading}
                 className="input w-full border-0 focus-visible:ring-transparent focus-visible:right-0 outline-none"
                  /> <br /><br />
+        <div className="flex gap-4">
+        <div className="flex flex-col w-1/2">
+        <label htmlFor="">Amount of Image</label>
+       <select className="select select-bordered select-xs max-w-xs mb-3" onChange={handleSelectAmount}>
+       <option selected value="1">1</option>
+       <option value="2">2</option>
+       <option value="3">3</option>
+       <option value="4">4</option>
+       <option value="5">5</option>
+             </select>
+        </div>
+       <div className="flex flex-col w-1/2">
+       <label htmlFor="">Resolution of Image</label>
+       <select className="select select-bordered select-xs max-w-xs mb-3" onChange={handleSelectRes}>
+       <option selected value="200x200">200x200</option>
+       <option value="500x500">500x500</option>
+       <option value="1080x1080">1080x1080</option>
+             </select>
+       </div>
+        </div>
                 <button 
                 type="submit" 
                 className="btn w-full" 
