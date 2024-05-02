@@ -9,7 +9,7 @@ export default function Dashboard (){
      const [error, setError] =useState('');
      const [isLoading, setIsLoading] =useState(false);
      const [amount, setAmount] = useState("1");
-     const [resolution, setResolution] = useState("500x500");
+     const [resolution, setResolution] = useState("");
      const [images, setImages] = useState([]);
 
      const values = {
@@ -17,19 +17,24 @@ export default function Dashboard (){
          amount,
          resolution
      }
+     console.log(values)
 
      const handleInputChange = (e)=>{
         setPrompt(e.target.value)
      }
-     const handleSelectRes = (e) =>{
-        setResolution(e.target.value)
-     }
-     const handleSelectAmount = (e) =>{
-        setAmount(e.target.value)
-     }
+    //  const handleSelectRes = (e) =>{
+    //     setResolution(e.target.value)
+    //  }
+    //  const handleSelectAmount = (e) =>{
+    //     setAmount(e.target.value)
+    //  }
 
      const handleSubmit = async(e)=>{
-        e.preventDefault(); try{
+        e.preventDefault();
+         try{
+            setPrompt(e.target.prompt.value)
+            setResolution(e.target.resolution.value)
+            setAmount(e.target.amount.value)
             setImages([])
             setIsLoading(true)
             setError('')
@@ -40,11 +45,13 @@ export default function Dashboard (){
  
             setImages(imgUrls);
             setPrompt('')
+            setAmount('')
+            setResolution('')
             setError('')
          }
          catch(error){
              console.log(error)
-             setError(error.message)
+             setError(error.response.data)
              setIsLoading(false)
          }
          finally{ router.refresh()
@@ -71,16 +78,18 @@ export default function Dashboard (){
                 <input 
                 type="text"
                 placeholder="what you want to create?"
-                value={prompt}
                 onChange={handleInputChange}
+                value={prompt}
                 disabled={isLoading}
+                name="prompt"
                 className="input w-full border-0 focus-visible:ring-transparent focus-visible:right-0 outline-none"
                  /> <br /><br />
         <div className="flex gap-4 items-center justify-center">
         <div className="flex flex-col w-1/2">
         <label htmlFor="">Amount of Image</label>
-       <select className="select select-bordered select-xs max-w-xs mb-3" onChange={handleSelectAmount} value={amount}>
-       <option selected value="1">1</option>
+       <select className="select select-bordered select-xs max-w-xs mb-3" value={amount} name="amount">
+       <option selected disabled>select</option>
+       <option value="1">1</option>
        <option value="2">2</option>
        <option value="3">3</option>
        <option value="4">4</option>
@@ -89,8 +98,9 @@ export default function Dashboard (){
         </div>
        <div className="flex flex-col w-1/2">
        <label htmlFor="">Resolution of Image</label>
-       <select className="select select-bordered select-xs max-w-xs mb-3" onChange={handleSelectRes} value={resolution}>
-       <option selected value="256x256">256x256</option>
+       <select className="select select-bordered select-xs max-w-xs mb-3" value={resolution} name="resolution">
+       <option selected disabled>Select</option>
+       <option value="256x256">256x256</option>
        <option value="512x512">512x512</option>
        <option value="1024x1024">1024x1024</option>
              </select>
@@ -114,7 +124,7 @@ export default function Dashboard (){
                 }
                 {
                     error && (
-                        <p className="bg-red-500 rounded-full pl-5 text-white">{error}</p>
+                        <p className="bg-red-500 rounded-full pl-5 text-white mt-5">{error}</p>
                     )
                 }
                 <div className="grid md:grid-cols-2 grid-cols-1 gap-5 mt-10"
